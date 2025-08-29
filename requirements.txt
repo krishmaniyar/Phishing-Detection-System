@@ -4,5 +4,7 @@ python-dotenv
 pymongo
 certifi
 scikit-learn
+dill
+pyaml
 
 # -e .
