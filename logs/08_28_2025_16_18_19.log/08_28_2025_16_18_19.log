@@ -1,3 +1,0 @@
-[2025-08-28 16:18:19,552] 38 root - INFO - CSV file Network_Data\phisingData.csv converted to JSON successfully.
-[2025-08-28 16:18:19,690] 38 root - INFO - CSV file Network_Data\phisingData.csv converted to JSON successfully.
-[2025-08-28 16:18:27,866] 53 root - INFO - Data inserted into MongoDB database: NetworkSecurity, collection: PhishingData successfully.
