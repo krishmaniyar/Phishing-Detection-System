@@ -24,13 +24,10 @@ from sklearn.ensemble import (
 import mlflow
 from urllib.parse import urlparse
 import dagshub
-mlflow.set_tracking_uri("file:./mlruns")
 
-#dagshub.init(repo_owner='krish', repo_name='networksecurity', mlflow=True)
+dagshub.init(repo_owner='krishmaniyar', repo_name='Network-Security', mlflow=True)
 
-# os.environ["MLFLOW_TRACKING_URI"]="https://dagshub.com/krishnaik06/networksecurity.mlflow"
-# os.environ["MLFLOW_TRACKING_USERNAME"]="krish"
-# os.environ["MLFLOW_TRACKING_PASSWORD"]="7104284f1bb44ece21e0e2adb4e36a250ae3251f"
+import mlflow
 
 class ModelTrainer:
     def __init__(self,model_trainer_config:ModelTrainerConfig,data_transformation_artifact:DataTransformationArtifact):
@@ -41,8 +38,6 @@ class ModelTrainer:
             raise NetworkSecurityException(e,sys)
         
     def track_mlflow(self,best_model,classificationmetric):
-        # mlflow.set_registry_uri("https://dagshub.com/krishnaik06/networksecurity.mlflow")
-        # tracking_url_type_store = urlparse(mlflow.get_tracking_uri()).scheme
         if not os.getenv("MLFLOW_TRACKING_URI"):
             logging.info("MLflow not configured. Skipping experiment tracking.")
             return
@@ -54,17 +49,6 @@ class ModelTrainer:
             mlflow.log_metric("f1_score",f1_score)
             mlflow.log_metric("precision",precision_score)
             mlflow.log_metric("recall_score",recall_score)
-            mlflow.sklearn.log_model(best_model,"model")
-            # Model registry does not work with file store
-            # if tracking_url_type_store != "file":
-
-            #     # Register the model
-            #     # There are other ways to use the Model Registry, which depends on the use case,
-            #     # please refer to the doc for more information:
-            #     # https://mlflow.org/docs/latest/model-registry.html#api-workflow
-            #     mlflow.sklearn.log_model(best_model, "model", registered_model_name=best_model)
-            # else:
-            #     mlflow.sklearn.log_model(best_model, "model")
 
     def train_model(self,X_train,y_train,x_test,y_test):
         models = {
@@ -134,6 +118,8 @@ class ModelTrainer:
         save_object(self.model_trainer_config.trained_model_file_path,obj=NetworkModel)
         #model pusher
         save_object("final_model/model.pkl",best_model)
+
+
      
         ## Model Trainer Artifact
         model_trainer_artifact=ModelTrainerArtifact(trained_model_file_path=self.model_trainer_config.trained_model_file_path,
