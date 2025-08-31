@@ -317,4 +317,4 @@ async def download_results():
         raise HTTPException(status_code=404, detail="Results file not available")
 
 if __name__=="__main__":
-    app_run(app,host="0.0.0.0",port=8000, debug=True)
+    app_run(app,host="0.0.0.0",port=8000)
