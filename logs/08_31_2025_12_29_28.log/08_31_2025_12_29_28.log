@@ -1,0 +1,6 @@
+[2025-08-31 12:29:30,989] 1025 httpx - INFO - HTTP Request: GET https://dagshub.com/api/v1/user "HTTP/1.1 200 OK"
+[2025-08-31 12:29:30,992] 107 dagshub - INFO - Accessing as krishmaniyar
+[2025-08-31 12:29:31,412] 1025 httpx - INFO - HTTP Request: GET https://dagshub.com/api/v1/repos/krishmaniyar/Network-Security "HTTP/1.1 200 OK"
+[2025-08-31 12:29:31,775] 1025 httpx - INFO - HTTP Request: GET https://dagshub.com/api/v1/user "HTTP/1.1 200 OK"
+[2025-08-31 12:29:31,777] 107 dagshub - INFO - Initialized MLflow to track repo "krishmaniyar/Network-Security"
+[2025-08-31 12:29:31,778] 107 dagshub - INFO - Repository krishmaniyar/Network-Security initialized!

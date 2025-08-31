@@ -1,0 +1,35 @@
+[2025-08-31 11:56:55,543] 1025 httpx - INFO - HTTP Request: GET https://dagshub.com/api/v1/user "HTTP/1.1 200 OK"
+[2025-08-31 11:56:55,546] 107 dagshub - INFO - Accessing as krishmaniyar
+[2025-08-31 11:56:55,955] 1025 httpx - INFO - HTTP Request: GET https://dagshub.com/api/v1/repos/krishmaniyar/Network-Security "HTTP/1.1 200 OK"
+[2025-08-31 11:56:56,252] 1025 httpx - INFO - HTTP Request: GET https://dagshub.com/api/v1/user "HTTP/1.1 200 OK"
+[2025-08-31 11:56:56,253] 107 dagshub - INFO - Initialized MLflow to track repo "krishmaniyar/Network-Security"
+[2025-08-31 11:56:56,254] 107 dagshub - INFO - Repository krishmaniyar/Network-Security initialized!
+[2025-08-31 12:12:25,546] 42 root - INFO - Start data Ingestion
+[2025-08-31 12:12:25,546] 21 root - INFO - >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Data Ingestion <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+[2025-08-31 12:12:25,546] 92 root - INFO - Starting data ingestion process
+[2025-08-31 12:12:25,776] 41 root - INFO - Connected to MongoDB database: NetworkSecurity, collection: PhishingData
+[2025-08-31 12:12:31,983] 43 root - INFO - Exported 11055 records from collection: PhishingData
+[2025-08-31 12:12:31,990] 56 root - INFO - Exporting data to feature store at: Artifacts\08312025_11_56_53\data_ingestion\feature_store\PhishingData.csv
+[2025-08-31 12:12:32,042] 69 root - INFO - Successfully split data into training and testing sets
+[2025-08-31 12:12:32,089] 77 root - INFO - Exported training data to: Artifacts\08312025_11_56_53\data_ingestion\ingested\train.csv
+[2025-08-31 12:12:32,089] 78 root - INFO - Exported testing data to: Artifacts\08312025_11_56_53\data_ingestion\ingested\test.csv
+[2025-08-31 12:12:32,089] 100 root - INFO - Data Ingestion Artifact: DataIngestionArtifact(train_file_path='Artifacts\\08312025_11_56_53\\data_ingestion\\ingested\\train.csv', test_file_path='Artifacts\\08312025_11_56_53\\data_ingestion\\ingested\\test.csv')
+[2025-08-31 12:12:32,089] 45 root - INFO - Data Ingestion completed and artifact: DataIngestionArtifact(train_file_path='Artifacts\\08312025_11_56_53\\data_ingestion\\ingested\\train.csv', test_file_path='Artifacts\\08312025_11_56_53\\data_ingestion\\ingested\\test.csv')
+[2025-08-31 12:12:32,096] 55 root - INFO - Initiate the data Validation
+[2025-08-31 12:12:32,096] 63 root - INFO - Starting data validation process
+[2025-08-31 12:12:32,156] 31 root - INFO - Expected number of columns: 31, Found: 31
+[2025-08-31 12:12:32,156] 31 root - INFO - Expected number of columns: 31, Found: 31
+[2025-08-31 12:12:32,156] 79 root - INFO - Data validation completed successfully
+[2025-08-31 12:12:32,279] 18 root - INFO - >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Data Transformation log started.<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< 
+[2025-08-31 12:12:32,279] 44 root - INFO - Reading training and testing data
+[2025-08-31 12:12:32,330] 47 root - INFO - Read train and test data completed
+[2025-08-31 12:12:32,333] 33 root - INFO - Creating data transformer object
+[2025-08-31 12:12:32,336] 60 root - INFO - Preprocessing object created and fit on training data
+[2025-08-31 12:12:32,343] 63 root - INFO - Applying preprocessing object on training and testing datasets
+[2025-08-31 12:12:32,350] 52 root - INFO - Object saved to Artifacts\08312025_11_56_53\data_transformation\transformed_object\preprocessing.pkl
+[2025-08-31 12:12:32,350] 74 root - INFO - Saved transformed training and testing array
+[2025-08-31 12:12:32,353] 52 root - INFO - Object saved to final_model/preprocessor.pkl
+[2025-08-31 12:15:08,620] 99 root - INFO - Best model found , Model Name: Random Forest , R2 Score :0.9212400714425362
+[2025-08-31 12:15:22,454] 52 root - INFO - Object saved to Artifacts\08312025_11_56_53\model_trainer\trained_model\model.pkl
+[2025-08-31 12:15:22,610] 52 root - INFO - Object saved to final_model/model.pkl
+[2025-08-31 12:15:22,610] 129 root - INFO - Model trainer artifact: ModelTrainerArtifact(trained_model_file_path='Artifacts\\08312025_11_56_53\\model_trainer\\trained_model\\model.pkl', train_metric_artifact=ClassificationMetricArtifact(f1_score=0.9898846854137163, precision_score=0.9870889650998588, recall_score=0.992696287279367), test_metric_artifact=ClassificationMetricArtifact(f1_score=0.9825981384055038, precision_score=0.9766693483507642, recall_score=0.988599348534202))

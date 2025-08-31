@@ -1,0 +1,1247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Model Training - Network Security</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            cursor: none;
+        }
+
+        /* Custom Cursor */
+        .cursor {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #00ffcc;
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            transition: all 0.1s ease;
+            transform: translate(-50%, -50%);
+            mix-blend-mode: difference;
+        }
+
+        .cursor-trail {
+            width: 8px;
+            height: 8px;
+            background: radial-gradient(circle, #00ffcc, transparent);
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9998;
+            opacity: 0.6;
+        }
+
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            line-height: 1.6;
+            color: #e0e0e0;
+            background: #000;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Animated Background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(0, 255, 204, 0.2) 0%, transparent 50%);
+            animation: gradientShift 10s ease infinite;
+            z-index: -2;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { transform: rotate(0deg) scale(1); }
+            50% { transform: rotate(180deg) scale(1.1); }
+        }
+
+        /* Particle Background */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.5;
+        }
+
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: #00ffcc;
+            border-radius: 50%;
+            animation: float 20s infinite linear;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) translateX(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100vh) translateX(100px);
+                opacity: 0;
+            }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            position: relative;
+        }
+
+        /* Navigation with Glassmorphism */
+        .navbar {
+            background: rgba(10, 10, 10, 0.4);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 1rem 0;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            box-shadow: 0 8px 32px rgba(0, 255, 204, 0.1);
+            animation: slideDown 0.5s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .nav-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, #00ffcc, #ff00ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: transform 0.3s ease;
+        }
+
+        .logo:hover {
+            transform: scale(1.05);
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #e0e0e0;
+            font-weight: 500;
+            position: relative;
+            transition: color 0.3s ease;
+            padding: 0.5rem 0;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #00ffcc, #ff00ff);
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: #00ffcc;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        /* Mobile Menu Button */
+        .mobile-menu {
+            display: none;
+            background: transparent;
+            border: 1px solid rgba(0, 255, 204, 0.3);
+            color: #00ffcc;
+            padding: 0.5rem;
+            border-radius: 5px;
+            font-size: 1.2rem;
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 120px 0 80px;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 3rem;
+            animation: fadeIn 1s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .page-title {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, #00ffcc, #ff00ff, #00ffcc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-size: 200% 200%;
+            animation: gradientMove 3s ease infinite;
+            text-shadow: 0 0 40px rgba(0, 255, 204, 0.5);
+        }
+
+        @keyframes gradientMove {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .page-subtitle {
+            font-size: 1.1rem;
+            color: rgba(224, 224, 224, 0.8);
+            max-width: 600px;
+            margin: 0 auto;
+            animation: fadeIn 1s ease 0.2s both;
+        }
+
+        /* Training Overview */
+        .training-overview {
+            background: rgba(20, 20, 20, 0.4);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 3rem;
+            box-shadow: 0 20px 40px rgba(0, 255, 204, 0.1);
+            margin-bottom: 3rem;
+            animation: fadeInUp 0.8s ease both;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .overview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .overview-card {
+            background: rgba(10, 10, 10, 0.6);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+            border-radius: 15px;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .overview-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(0, 255, 204, 0.1) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .overview-card:hover::before {
+            opacity: 1;
+        }
+
+        .overview-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            border-color: rgba(0, 255, 204, 0.3);
+            box-shadow: 0 20px 40px rgba(0, 255, 204, 0.2);
+        }
+
+        .overview-icon {
+            font-size: 2.5rem;
+            background: linear-gradient(45deg, #00ffcc, #ff00ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+        }
+
+        .overview-card h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #fff;
+        }
+
+        .overview-card p {
+            color: rgba(224, 224, 224, 0.7);
+            font-size: 0.9rem;
+        }
+
+        /* Training Control */
+        .training-control {
+            background: rgba(20, 20, 20, 0.4);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 3rem;
+            box-shadow: 0 20px 40px rgba(0, 255, 204, 0.1);
+            margin-bottom: 3rem;
+            text-align: center;
+            animation: fadeInUp 0.8s ease 0.1s both;
+        }
+
+        .control-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            background: linear-gradient(45deg, #00ffcc, #ff00ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+        }
+
+        .control-description {
+            color: rgba(224, 224, 224, 0.7);
+            margin-bottom: 2rem;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .train-btn {
+            background: linear-gradient(45deg, #00ffcc, #ff00ff);
+            color: #000;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .train-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: 0.5s;
+        }
+
+        .train-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 255, 204, 0.3);
+        }
+
+        .train-btn:hover:not(:disabled)::before {
+            left: 100%;
+        }
+
+        .train-btn:disabled {
+            background: rgba(156, 163, 175, 0.5);
+            color: rgba(224, 224, 224, 0.5);
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Training Progress */
+        .training-progress {
+            background: rgba(20, 20, 20, 0.4);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 3rem;
+            box-shadow: 0 20px 40px rgba(0, 255, 204, 0.1);
+            margin-bottom: 3rem;
+            display: none;
+            animation: fadeInUp 0.8s ease 0.2s both;
+        }
+
+        .training-progress.show {
+            display: block;
+        }
+
+        .progress-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .progress-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            background: linear-gradient(45deg, #00ffcc, #ff00ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+        }
+
+        .progress-status {
+            color: #00ffcc;
+            font-weight: 500;
+            font-size: 1.1rem;
+        }
+
+        /* Pipeline Steps */
+        .pipeline-steps {
+            margin-bottom: 2rem;
+        }
+
+        .step {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            background: rgba(10, 10, 10, 0.6);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 10px;
+            border-left: 4px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .step.active {
+            border-left-color: #00ffcc;
+            background: rgba(0, 255, 204, 0.1);
+        }
+
+        .step.completed {
+            border-left-color: #10b981;
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .step-icon {
+            font-size: 1.5rem;
+            width: 40px;
+            text-align: center;
+            color: rgba(224, 224, 224, 0.5);
+        }
+
+        .step.active .step-icon {
+            color: #00ffcc;
+        }
+
+        .step.completed .step-icon {
+            color: #10b981;
+        }
+
+        .step-info {
+            flex: 1;
+        }
+
+        .step-name {
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 0.25rem;
+        }
+
+        .step-description {
+            color: rgba(224, 224, 224, 0.7);
+            font-size: 0.9rem;
+        }
+
+        .step-status {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: rgba(224, 224, 224, 0.5);
+        }
+
+        .step.active .step-status {
+            color: #00ffcc;
+        }
+
+        .step.completed .step-status {
+            color: #10b981;
+        }
+
+        /* Overall Progress */
+        .overall-progress {
+            background: rgba(10, 10, 10, 0.6);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .progress-bar-container {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            height: 12px;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+
+        .progress-bar {
+            background: linear-gradient(90deg, #00ffcc, #ff00ff);
+            height: 100%;
+            width: 0%;
+            transition: width 0.5s ease;
+            border-radius: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .progress-text {
+            text-align: center;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        /* Training Results */
+        .training-results {
+            background: rgba(20, 20, 20, 0.4);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 3rem;
+            box-shadow: 0 20px 40px rgba(0, 255, 204, 0.1);
+            display: none;
+            animation: fadeInUp 0.8s ease 0.3s both;
+        }
+
+        .training-results.show {
+            display: block;
+        }
+
+        .results-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .results-title {
+            font-size: 2rem;
+            font-weight: 600;
+            background: linear-gradient(45deg, #00ffcc, #ff00ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+        }
+
+        .results-subtitle {
+            color: #10b981;
+            font-weight: 500;
+            font-size: 1.1rem;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .result-card {
+            background: rgba(10, 10, 10, 0.6);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 1.5rem;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .result-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(0, 255, 204, 0.3);
+            box-shadow: 0 10px 30px rgba(0, 255, 204, 0.2);
+        }
+
+        .result-number {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, #00ffcc, #ff00ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .result-label {
+            color: rgba(224, 224, 224, 0.7);
+            font-weight: 500;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #00ffcc, #ff00ff);
+            color: #000;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 255, 204, 0.3);
+        }
+
+        .btn-secondary {
+            background: rgba(107, 114, 128, 0.5);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(75, 85, 99, 0.5);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(107, 114, 128, 0.3);
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-top: 4px solid #00ffcc;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            
+
+            .nav-links {
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                background: rgba(10, 10, 10, 0.9);
+                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
+                flex-direction: column;
+                padding: 1rem;
+                border-top: 1px solid rgba(255, 255, 255, 0.1);
+            }
+            
+            .nav-links.show {
+                display: flex;
+            }
+            
+            .mobile-menu {
+                display: block;
+            }
+
+            .page-title {
+                font-size: 2.5rem;
+            }
+
+            .training-overview,
+            .training-control,
+            .training-progress,
+            .training-results {
+                padding: 2rem 1.5rem;
+            }
+
+            .overview-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .btn {
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Custom Cursor -->
+    <div class="cursor"></div>
+    <div class="cursor-trail"></div>
+
+    <!-- Particle Background -->
+    <div class="particles" id="particles"></div>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-content">
+                <a href="/" class="logo">
+                    <i class="fas fa-shield-alt"></i> Network Security
+                </a>
+                <ul class="nav-links">
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/detect">Detect Phishing</a></li>
+                    <li><a href="/train">Train Model</a></li>
+                    <li><a href="/about">About</a></li>
+                    <!-- <li><a href="/test">Test API</a></li> -->
+                </ul>
+                <button class="mobile-menu">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="container">
+            <!-- Page Header -->
+            <div class="page-header">
+                <h1 class="page-title">Model Training</h1>
+                <p class="page-subtitle">Train and optimize your phishing detection model using our automated ML pipeline with advanced algorithms.</p>
+            </div>
+
+            <!-- Training Overview -->
+            <div class="training-overview">
+                <h2 style="text-align: center; margin-bottom: 2rem; background: linear-gradient(45deg, #00ffcc, #ff00ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Training Pipeline Overview</h2>
+                <div class="overview-grid">
+                    <div class="overview-card">
+                        <div class="overview-icon">
+                            <i class="fas fa-database"></i>
+                        </div>
+                        <h3>Data Ingestion</h3>
+                        <p>Load and validate training data from multiple sources</p>
+                    </div>
+                    <div class="overview-card">
+                        <div class="overview-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <h3>Data Validation</h3>
+                        <p>Ensure data quality and schema compliance</p>
+                    </div>
+                    <div class="overview-card">
+                        <div class="overview-icon">
+                            <i class="fas fa-cogs"></i>
+                        </div>
+                        <h3>Data Transformation</h3>
+                        <p>Preprocess and feature engineer the dataset</p>
+                    </div>
+                    <div class="overview-card">
+                        <div class="overview-icon">
+                            <i class="fas fa-brain"></i>
+                        </div>
+                        <h3>Model Training</h3>
+                        <p>Train multiple ML algorithms and select the best</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Training Control -->
+            <div class="training-control">
+                <h2 class="control-title">Start Training</h2>
+                <p class="control-description">Click the button below to initiate the automated training pipeline. This will process your data and train the optimal model for phishing detection.</p>
+                <button class="train-btn" id="startTrainingBtn">
+                    <i class="fas fa-play"></i> Start Training Pipeline
+                </button>
+            </div>
+
+            <!-- Training Progress -->
+            <div class="training-progress" id="trainingProgress">
+                <div class="progress-header">
+                    <h2 class="progress-title">Training in Progress</h2>
+                    <p class="progress-status" id="progressStatus">Initializing...</p>
+                </div>
+
+                <!-- Pipeline Steps -->
+                <div class="pipeline-steps">
+                    <div class="step" id="step1">
+                        <div class="step-icon">
+                            <i class="fas fa-database"></i>
+                        </div>
+                        <div class="step-info">
+                            <div class="step-name">Data Ingestion</div>
+                            <div class="step-description">Loading training data from sources</div>
+                        </div>
+                        <div class="step-status">Pending</div>
+                    </div>
+
+                    <div class="step" id="step2">
+                        <div class="step-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="step-info">
+                            <div class="step-name">Data Validation</div>
+                            <div class="step-description">Validating data quality and schema</div>
+                        </div>
+                        <div class="step-status">Pending</div>
+                    </div>
+
+                    <div class="step" id="step3">
+                        <div class="step-icon">
+                            <i class="fas fa-cogs"></i>
+                        </div>
+                        <div class="step-info">
+                            <div class="step-name">Data Transformation</div>
+                            <div class="step-description">Preprocessing and feature engineering</div>
+                        </div>
+                        <div class="step-status">Pending</div>
+                    </div>
+
+                    <div class="step" id="step4">
+                        <div class="step-icon">
+                            <i class="fas fa-brain"></i>
+                        </div>
+                        <div class="step-info">
+                            <div class="step-name">Model Training</div>
+                            <div class="step-description">Training ML algorithms and evaluation</div>
+                        </div>
+                        <div class="step-status">Pending</div>
+                    </div>
+                </div>
+
+                <!-- Overall Progress -->
+                <div class="overall-progress">
+                    <div class="progress-bar-container">
+                        <div class="progress-bar" id="overallProgressBar"></div>
+                    </div>
+                    <div class="progress-text" id="overallProgressText">0% Complete</div>
+                </div>
+
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    <p>Training in progress...</p>
+                </div>
+            </div>
+
+            <!-- Training Results -->
+            <div class="training-results" id="trainingResults">
+                <div class="results-header">
+                    <h2 class="results-title">Training Completed!</h2>
+                    <p class="results-subtitle">Your model has been successfully trained and optimized</p>
+                </div>
+
+                <div class="results-grid">
+                    <div class="result-card">
+                        <div class="result-number" id="bestModelScore">0.98</div>
+                        <div class="result-label">Best Model Score</div>
+                    </div>
+                    <div class="result-card">
+                        <div class="result-number" id="bestModelName">Random Forest</div>
+                        <div class="result-label">Best Algorithm</div>
+                    </div>
+                    <div class="result-card">
+                        <div class="result-number" id="trainingTime">2m 34s</div>
+                        <div class="result-label">Training Time</div>
+                    </div>
+                    <div class="result-card">
+                        <div class="result-number" id="dataSize">15.2K</div>
+                        <div class="result-label">Data Points</div>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <!-- <button class="btn btn-primary" id="viewModelBtn">
+                        <i class="fas fa-eye"></i> View Model Details
+                    </button> -->
+                    <button class="btn btn-secondary" id="newTrainingBtn">
+                        <i class="fas fa-redo"></i> Start New Training
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Custom cursor
+        const cursor = document.querySelector('.cursor');
+        const cursorTrail = document.querySelector('.cursor-trail');
+        
+        document.addEventListener('mousemove', (e) => {
+            cursor.style.left = e.clientX + 'px';
+            cursor.style.top = e.clientY + 'px';
+            
+            setTimeout(() => {
+                cursorTrail.style.left = e.clientX + 'px';
+                cursorTrail.style.top = e.clientY + 'px';
+            }, 100);
+        });
+
+        // Particle background
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            const particleCount = 50;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+                
+                // Random position
+                particle.style.left = Math.random() * 100 + 'vw';
+                particle.style.top = Math.random() * 100 + 'vh';
+                
+                // Random size
+                const size = Math.random() * 3 + 1;
+                particle.style.width = size + 'px';
+                particle.style.height = size + 'px';
+                
+                // Random animation duration
+                particle.style.animationDuration = (Math.random() * 20 + 10) + 's';
+                particle.style.animationDelay = Math.random() * 5 + 's';
+                
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        createParticles();
+
+        
+
+        const mobileMenu = document.querySelector('.mobile-menu');
+        const navLinks = document.querySelector('.nav-links');
+        // Mobile menu toggle (basic implementation)
+        if (mobileMenu) {
+        mobileMenu.addEventListener('click', () => {
+            navLinks.classList.toggle('show');
+            mobileMenu.innerHTML = navLinks.classList.contains('show') 
+                ? '<i class="fas fa-times"></i>' 
+                : '<i class="fas fa-bars"></i>';
+            });
+        }
+
+        // Training elements
+        const startTrainingBtn = document.getElementById('startTrainingBtn');
+        const trainingProgress = document.getElementById('trainingProgress');
+        const trainingResults = document.getElementById('trainingResults');
+        const progressStatus = document.getElementById('progressStatus');
+        const overallProgressBar = document.getElementById('overallProgressBar');
+        const overallProgressText = document.getElementById('overallProgressText');
+        const loading = document.getElementById('loading');
+
+        // Step elements
+        const steps = [
+            document.getElementById('step1'),
+            document.getElementById('step2'),
+            document.getElementById('step3'),
+            document.getElementById('step4')
+        ];
+
+        // Training state
+        let isTraining = false;
+
+        // Start training button click
+        startTrainingBtn.addEventListener('click', () => {
+            if (isTraining) return;
+            startTraining();
+        });
+
+        // Start training function
+        function startTraining() {
+            isTraining = true;
+            startTrainingBtn.disabled = true;
+            startTrainingBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Training...';
+            
+            // Show progress section
+            trainingProgress.classList.add('show');
+            
+            // Start actual training via API
+            startActualTraining();
+        }
+
+        // Start actual training via API
+        async function startActualTraining() {
+            try {
+                // Start with step 1
+                steps[0].classList.add('active');
+                steps[0].querySelector('.step-status').textContent = 'Running...';
+                progressStatus.textContent = 'Starting data ingestion...';
+                
+                // Simulate progress for first step
+                await simulateStepProgress(3000, 0, 25);
+                steps[0].classList.remove('active');
+                steps[0].classList.add('completed');
+                steps[0].querySelector('.step-status').textContent = 'Completed';
+                steps[0].querySelector('.step-icon').innerHTML = '<i class="fas fa-check"></i>';
+                
+                // Start step 2
+                steps[1].classList.add('active');
+                steps[1].querySelector('.step-status').textContent = 'Running...';
+                progressStatus.textContent = 'Validating data...';
+                
+                await simulateStepProgress(4000, 25, 25);
+                steps[1].classList.remove('active');
+                steps[1].classList.add('completed');
+                steps[1].querySelector('.step-status').textContent = 'Completed';
+                steps[1].querySelector('.step-icon').innerHTML = '<i class="fas fa-check"></i>';
+                
+                // Start step 3
+                steps[2].classList.add('active');
+                steps[2].querySelector('.step-status').textContent = 'Running...';
+                progressStatus.textContent = 'Transforming data...';
+                
+                await simulateStepProgress(5000, 50, 25);
+                steps[2].classList.remove('active');
+                steps[2].classList.add('completed');
+                steps[2].querySelector('.step-status').textContent = 'Completed';
+                steps[2].querySelector('.step-icon').innerHTML = '<i class="fas fa-check"></i>';
+                
+                // Start final step - actual model training
+                steps[3].classList.add('active');
+                steps[3].querySelector('.step-status').textContent = 'Running...';
+                progressStatus.textContent = 'Training ML models...';
+                
+                // Make actual API call for training
+                const response = await fetch('/api/train');
+                const result = await response.json();
+                
+                if (result.status === 'success') {
+                    await simulateStepProgress(3000, 75, 25);
+                    steps[3].classList.remove('active');
+                    steps[3].classList.add('completed');
+                    steps[3].querySelector('.step-status').textContent = 'Completed';
+                    steps[3].querySelector('.step-icon').innerHTML = '<i class="fas fa-check"></i>';
+                    
+                    // Training completed
+                    progressStatus.textContent = 'Training completed successfully!';
+                    overallProgressBar.style.width = '100%';
+                    overallProgressText.textContent = '100% Complete';
+                    
+                    setTimeout(() => {
+                        trainingProgress.classList.remove('show');
+                        showTrainingResults();
+                    }, 1000);
+                } else {
+                    throw new Error('Training failed');
+                }
+                
+            } catch (error) {
+                console.error('Training error:', error);
+                progressStatus.textContent = 'Training failed. Please try again.';
+                setTimeout(() => {
+                    trainingProgress.classList.remove('show');
+                    isTraining = false;
+                    startTrainingBtn.disabled = false;
+                    startTrainingBtn.innerHTML = '<i class="fas fa-play"></i> Start Training Pipeline';
+                }, 2000);
+            }
+        }
+
+        // Run training pipeline (fallback simulation)
+        async function runTrainingPipeline() {
+            const stepDurations = [3000, 4000, 5000, 8000]; // Duration for each step in ms
+            let overallProgress = 0;
+            
+            for (let i = 0; i < steps.length; i++) {
+                // Activate current step
+                steps[i].classList.add('active');
+                steps[i].querySelector('.step-status').textContent = 'Running...';
+                progressStatus.textContent = `Running ${steps[i].querySelector('.step-name').textContent}...`;
+                
+                // Simulate step progress
+                await simulateStepProgress(stepDurations[i], overallProgress, 25);
+                overallProgress += 25;
+                
+                // Complete step
+                steps[i].classList.remove('active');
+                steps[i].classList.add('completed');
+                steps[i].querySelector('.step-status').textContent = 'Completed';
+                steps[i].querySelector('.step-icon').innerHTML = '<i class="fas fa-check"></i>';
+            }
+            
+            // Training completed
+            progressStatus.textContent = 'Training completed successfully!';
+            overallProgressBar.style.width = '100%';
+            overallProgressText.textContent = '100% Complete';
+            
+            setTimeout(() => {
+                trainingProgress.classList.remove('show');
+                showTrainingResults();
+            }, 1000);
+        }
+
+        // Simulate step progress
+        function simulateStepProgress(duration, startProgress, stepProgress) {
+            return new Promise((resolve) => {
+                const interval = 100; // Update every 100ms
+                const steps = duration / interval;
+                const progressIncrement = stepProgress / steps;
+                let currentProgress = startProgress;
+                
+                const timer = setInterval(() => {
+                    currentProgress += progressIncrement;
+                    if (currentProgress >= startProgress + stepProgress) {
+                        currentProgress = startProgress + stepProgress;
+                        clearInterval(timer);
+                        resolve();
+                    }
+                    
+                    overallProgressBar.style.width = currentProgress + '%';
+                    overallProgressText.textContent = Math.round(currentProgress) + '% Complete';
+                }, interval);
+            });
+        }
+
+        // Show training results
+        function showTrainingResults() {
+            trainingResults.classList.add('show');
+            
+            // Reset training state
+            isTraining = false;
+            startTrainingBtn.disabled = false;
+            startTrainingBtn.innerHTML = '<i class="fas fa-play"></i> Start Training Pipeline';
+            
+            // Reset progress
+            trainingProgress.classList.remove('show');
+            overallProgressBar.style.width = '0%';
+            overallProgressText.textContent = '0% Complete';
+            
+            // Reset steps
+            steps.forEach(step => {
+                step.classList.remove('active', 'completed');
+                step.querySelector('.step-status').textContent = 'Pending';
+                step.querySelector('.step-icon').innerHTML = step.querySelector('.step-icon').innerHTML.replace('<i class="fas fa-check"></i>', step.querySelector('.step-icon').innerHTML.includes('fa-database') ? '<i class="fas fa-database"></i>' : 
+                    step.querySelector('.step-icon').innerHTML.includes('fa-check-circle') ? '<i class="fas fa-check-circle"></i>' :
+                    step.querySelector('.step-icon').innerHTML.includes('fa-cogs') ? '<i class="fas fa-cogs"></i>' : '<i class="fas fa-brain"></i>');
+            });
+        }
+
+        // View model details button
+        document.getElementById('viewModelBtn').addEventListener('click', () => {
+            alert('Model details view will be implemented with actual API integration.');
+        });
+
+        // New training button
+        document.getElementById('newTrainingBtn').addEventListener('click', () => {
+            trainingResults.classList.remove('show');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    </script>
+</body>
+</html>

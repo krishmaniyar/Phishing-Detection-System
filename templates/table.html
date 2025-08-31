@@ -2,62 +2,212 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Predicted Data</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prediction Results - Network Security</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
   <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
     body {
       font-family: 'Inter', sans-serif;
-      background: #f9fafb;
-      margin: 0;
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      min-height: 100vh;
       padding: 20px;
-      color: #111827;
     }
-    h2 {
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .header {
       text-align: center;
-      margin-bottom: 20px;
-      font-weight: 600;
-      color: #1f2937;
+      margin-bottom: 2rem;
+      color: #333;
     }
+
+    .header h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
+
+    .header p {
+      font-size: 1.1rem;
+      color: #666;
+    }
+
+    .navigation {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .nav-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: #667eea;
+      color: white;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 50px;
+      font-size: 1rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      margin: 0 0.5rem;
+    }
+
+    .nav-btn:hover {
+      background: #5a67d8;
+      transform: translateY(-2px);
+    }
+
+    .nav-btn.secondary {
+      background: #6b7280;
+    }
+
+    .nav-btn.secondary:hover {
+      background: #4b5563;
+    }
+
     .table-container {
-      max-width: 90%;
-      margin: auto;
       background: white;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      padding: 2rem;
+      border-radius: 20px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.1);
       overflow-x: auto;
     }
+
     table {
       border-collapse: collapse;
       width: 100%;
       font-size: 14px;
     }
+
     th, td {
       padding: 12px 15px;
       text-align: left;
+      border-bottom: 1px solid #e5e7eb;
     }
+
     th {
-      background: #2563eb;
+      background: #667eea;
       color: white;
       position: sticky;
       top: 0;
+      font-weight: 600;
     }
+
     tr:nth-child(even) {
-      background: #f3f4f6;
+      background: #f8fafc;
     }
+
     tr:hover {
-      background: #e0f2fe;
+      background: #eff6ff;
       transition: background 0.2s ease-in-out;
     }
-    td {
-      border-bottom: 1px solid #e5e7eb;
+
+    .prediction-cell {
+      font-weight: 600;
+    }
+
+    .prediction-phishing {
+      color: #dc2626;
+    }
+
+    .prediction-safe {
+      color: #059669;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: #f8fafc;
+      padding: 1.5rem;
+      border-radius: 10px;
+      text-align: center;
+      border: 1px solid #e2e8f0;
+    }
+
+    .stat-number {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #667eea;
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+      color: #666;
+      font-weight: 500;
+    }
+
+    @media (max-width: 768px) {
+      .header h1 {
+        font-size: 2rem;
+      }
+      
+      .nav-btn {
+        display: block;
+        margin: 0.5rem auto;
+        max-width: 200px;
+      }
     }
   </style>
 </head>
 <body>
-  <h2>Predicted Data</h2>
-  <div class="table-container">
-    {{ table | safe }}
+  <div class="container">
+    <div class="header">
+      <h1><i class="fas fa-shield-alt"></i> Phishing Detection Results</h1>
+      <p>Analysis completed successfully! Here are the detailed results.</p>
+    </div>
+
+    <div class="navigation">
+      <a href="/detect" class="nav-btn">
+        <i class="fas fa-search"></i> New Analysis
+      </a>
+      <a href="/" class="nav-btn secondary">
+        <i class="fas fa-home"></i> Back to Home
+      </a>
+    </div>
+
+    <div class="table-container">
+      {{ table | safe }}
+    </div>
   </div>
+
+  <script>
+    // Add prediction styling to the table
+    document.addEventListener('DOMContentLoaded', function() {
+      const rows = document.querySelectorAll('tr');
+      rows.forEach(row => {
+        const cells = row.querySelectorAll('td');
+        cells.forEach((cell, index) => {
+          // Style the prediction column (assuming it's the last column)
+          if (index === cells.length - 1) {
+            cell.classList.add('prediction-cell');
+            const text = cell.textContent.trim();
+            if (text === '-1') {
+              cell.textContent = 'Phishing';
+              cell.classList.add('prediction-phishing');
+            } else if (text === '1') {
+              cell.textContent = 'Safe';
+              cell.classList.add('prediction-safe');
+            }
+          }
+        });
+      });
+    });
+  </script>
 </body>
 </html>
